@@ -1,0 +1,14 @@
+Logging what I have done
+
+here are the id codes, this is a direct copy from SSH
+
+lrwxrwxrwx 1 root root 13 May  5 13:17 usb-Klipper_stm32f103xe_38FFDD053348523722842451-if00 -> ../../ttyACM1
+lrwxrwxrwx 1 root root 13 May  5 13:17 usb-Klipper_stm32f103xe_56FF6C067166555620240387-if00 -> ../../ttyACM0
+
+I am going to paste this into my flashing script
+
+so I flashed it all over again and it went fine just like the first time, I did not see anything that was the same as the first time. 
+
+I seemed to have fixed the problem, in the printer config I tried to use the "usb-Klipper_stm32f103xe_56FF6C067166555620240387-if00" but wouuld not work, it would only work with
+the old setup, this time I flashed it again, but put this line first with the serial ttyACM0 hashed out below it. now it's all working
+

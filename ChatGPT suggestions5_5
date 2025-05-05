@@ -1,0 +1,79 @@
+Thanks for sharing your `printer.cfg` — it's very detailed and well-organized. I’ve reviewed it, and here are some key observations and suggestions to help ensure smooth operation, especially since you mentioned issues with the Z-axis during quad gantry leveling:
+
+---
+
+### ✅ General Observations:
+
+* **Dual MCU Configuration**: You’ve set up both `[mcu]` and `[mcu extra_mcu]` correctly. Looks good.
+* **Quad Z Motors**: You’ve defined `stepper_z`, `stepper_z1`, `stepper_z2`, and `stepper_z3`, all with identical rotation distances and gear ratios. Good for consistency in motion.
+* **`quad_gantry_level` section is defined** with appropriate corner and probe points.
+* **Probe Setup**: You use a standard probe (`[probe]`) plus `[probe_pressure]`. Make sure these are not conflicting.
+
+---
+
+### ⚠️ Possible Issues or Improvements:
+
+#### 1. **All Z TMC2209 Drivers Use the Same UART Address**
+
+Every Z driver (`tmc2209 stepper_z`, `z1`, `z2`, and `z3`) is set to:
+
+```ini
+uart_address: 3
+```
+
+**This is a problem.** Each driver **must have a unique `uart_address`** on the same MCU.
+
+**Suggestion:** Change the addresses to be unique like:
+
+```ini
+[tmc2209 stepper_z]
+uart_address: 0
+
+[tmc2209 stepper_z1]
+uart_address: 1
+
+[tmc2209 stepper_z2]
+uart_address: 2
+
+[tmc2209 stepper_z3]
+uart_address: 3
+```
+
+#### 2. **Check UART Pins Are Not Shared**
+
+Ensure each UART pin (e.g. PE6, PD2, etc.) is physically connected to a unique stepper driver’s UART input and isn’t shared. If you're using a board that routes all TMC UART lines to a shared bus, you must have jumpers or addresses correctly set.
+
+#### 3. **Consider Enabling the PID Controls (Optional)**
+
+Your PID settings are commented out for both the hotend and bed:
+
+```ini
+#control : pid
+#pid_kp : ...
+```
+
+If you’re done tuning, uncomment those lines to improve temperature stability.
+
+#### 4. **G-Code After Quad Gantry Level**
+
+You could optionally add a `G28 Z` or `BED_MESH_CALIBRATE` after `QUAD_GANTRY_LEVEL` in your print start macro to ensure leveling is followed by proper probing.
+
+#### 5. **Toolhead Temperature Sensor**
+
+```ini
+[temperature_sensor Toolhead_Temp]
+sensor_type: temperature_mcu
+sensor_mcu: extra_mcu
+```
+
+This is fine, just ensure it's correctly mapped in your dashboard or macros — it’s often used to monitor stepper temps via MCU thermal diodes.
+
+---
+
+### ✅ Your Input Shaper & Bed Mesh Save Data Looks Solid
+
+The `[input_shaper]` and `[bed_mesh]` configurations at the bottom show good tuning and use of advanced features.
+
+---
+
+Would you like help troubleshooting startup G-code or optimizing macros like homing or mesh leveling next?
